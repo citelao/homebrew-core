@@ -85,6 +85,8 @@ class PythonAT39 < Formula
     end
   end
 
+  patch :DATA
+
   def install
     # Unset these so that installing pip and setuptools puts them where we want
     # and not into some other Python the user has installed.
@@ -121,7 +123,7 @@ class PythonAT39 < Formula
       cflags << "-I#{MacOS.sdk_path}/System/Library/Frameworks/Tk.framework/Versions/8.5/Headers"
     end
     # Avoid linking to libgcc https://mail.python.org/pipermail/python-dev/2012-February/116205.html
-    args << "MACOSX_DEPLOYMENT_TARGET=#{MacOS.version}"
+    args << "MACOSX_DEPLOYMENT_TARGET=11"
 
     # We want our readline! This is just to outsmart the detection code,
     # superenv makes cc always find includes/libs!
@@ -347,3 +349,71 @@ class PythonAT39 < Formula
     system bin/"pip3", "list", "--format=columns"
   end
 end
+__END__
+commit cd26ccbbf97be0d729196df3ec2a25ef4f0c57f8
+Author: FX Coudert <fxcoudert@gmail.com>
+Date:   2020-11-29 16:26:44 +0100
+
+    setup.py: fix for MACOSX_DEPLOYMENT_TARGET=11
+
+diff --git a/Lib/distutils/spawn.py b/Lib/distutils/spawn.py
+index 0d1bd0391e..e705f19e79 100644
+--- a/Lib/distutils/spawn.py
++++ b/Lib/distutils/spawn.py
+@@ -57,7 +57,7 @@ def spawn(cmd, search_path=1, verbose=0, dry_run=0):
+             _cfg_target = sysconfig.get_config_var(
+                                   'MACOSX_DEPLOYMENT_TARGET') or ''
+             if _cfg_target:
+-                _cfg_target_split = [int(x) for x in _cfg_target.split('.')]
++                _cfg_target_split = [int(x) for x in str(_cfg_target).split('.')]
+         if _cfg_target:
+             # ensure that the deployment target of build process is not less
+             # than that used when the interpreter was built. This ensures
+diff --git a/Lib/distutils/tests/test_build_ext.py b/Lib/distutils/tests/test_build_ext.py
+index 6bb009a86f..d7e32f456f 100644
+--- a/Lib/distutils/tests/test_build_ext.py
++++ b/Lib/distutils/tests/test_build_ext.py
+@@ -456,7 +456,7 @@ def test_deployment_target_higher_ok(self):
+         deptarget = sysconfig.get_config_var('MACOSX_DEPLOYMENT_TARGET')
+         if deptarget:
+             # increment the minor version number (i.e. 10.6 -> 10.7)
+-            deptarget = [int(x) for x in deptarget.split('.')]
++            deptarget = [int(x) for x in str(deptarget).split('.')]
+             deptarget[-1] += 1
+             deptarget = '.'.join(str(i) for i in deptarget)
+             self._try_compile_deployment_target('<', deptarget)
+@@ -489,7 +489,7 @@ def _try_compile_deployment_target(self, operator, target):
+ 
+         # get the deployment target that the interpreter was built with
+         target = sysconfig.get_config_var('MACOSX_DEPLOYMENT_TARGET')
+-        target = tuple(map(int, target.split('.')[0:2]))
++        target = tuple(map(int, str(target).split('.')[0:2]))
+         # format the target value as defined in the Apple
+         # Availability Macros.  We can't use the macro names since
+         # at least one value we test with will not exist yet.
+diff --git a/Lib/test/test_posix.py b/Lib/test/test_posix.py
+index a522717751..7a112ef724 100644
+--- a/Lib/test/test_posix.py
++++ b/Lib/test/test_posix.py
+@@ -1056,7 +1056,7 @@ def test_getgroups(self):
+         if sys.platform == 'darwin':
+             import sysconfig
+             dt = sysconfig.get_config_var('MACOSX_DEPLOYMENT_TARGET') or '10.0'
+-            if tuple(int(n) for n in dt.split('.')[0:2]) < (10, 6):
++            if tuple(int(n) for n in str(dt).split('.')[0:2]) < (10, 6):
+                 raise unittest.SkipTest("getgroups(2) is broken prior to 10.6")
+ 
+         # 'id -G' and 'os.getgroups()' should return the same
+diff --git a/setup.py b/setup.py
+index b7a7d26c53..0c9a425016 100644
+--- a/setup.py
++++ b/setup.py
+@@ -1014,7 +1014,7 @@ def detect_readline_curses(self):
+             os_release = int(os.uname()[2].split('.')[0])
+             dep_target = sysconfig.get_config_var('MACOSX_DEPLOYMENT_TARGET')
+             if (dep_target and
+-                    (tuple(int(n) for n in dep_target.split('.')[0:2])
++                    (tuple(int(n) for n in str(dep_target).split('.')[0:2])
+                         < (10, 5) ) ):
+                 os_release = 8
+             if os_release < 9:
