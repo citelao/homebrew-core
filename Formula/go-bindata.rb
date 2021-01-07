@@ -18,6 +18,7 @@ class GoBindata < Formula
 
   def install
     ENV["GOPATH"] = buildpath
+    ENV["GO111MODULE"] = "auto"
     (buildpath/"src/github.com/kevinburke").mkpath
     ln_s buildpath, buildpath/"src/github.com/kevinburke/go-bindata"
     system "go", "build", "-o", bin/"go-bindata", "./go-bindata"
