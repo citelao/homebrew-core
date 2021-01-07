@@ -4,6 +4,7 @@ class Terraform < Formula
   url "https://github.com/hashicorp/terraform/archive/v0.14.4.tar.gz"
   sha256 "56da03b95c62c849adf5c5397ae4bc3b8cad2ca4ffb26244d3daf90567208e63"
   license "MPL-2.0"
+  revision 1
   head "https://github.com/hashicorp/terraform.git"
 
   livecheck do
