@@ -6,6 +6,7 @@ class PdflibLite < Formula
   mirror "https://www.pdflib.com/binaries/PDFlib/705/PDFlib-Lite-7.0.5p3.tar.gz"
   version "7.0.5p3"
   sha256 "e5fb30678165d28b2bf066f78d5f5787e73a2a28d4902b63e3e07ce1678616c9"
+  revision 1
 
   # PDFlib Lite reached its end of life in 2011 and is no longer supported.
   livecheck do
