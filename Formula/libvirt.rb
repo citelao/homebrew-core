@@ -4,6 +4,7 @@ class Libvirt < Formula
   url "https://libvirt.org/sources/libvirt-6.10.0.tar.xz"
   sha256 "30cfc1365b7a62bf08c5254103087fac51c4210343aa958a7d38cedd280ed2aa"
   license all_of: ["LGPL-2.1-or-later", "GPL-2.0-or-later"]
+  revision 1
 
   livecheck do
     url "https://libvirt.org/sources/"
