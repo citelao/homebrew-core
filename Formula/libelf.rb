@@ -33,11 +33,15 @@ class Libelf < Formula
   depends_on "libtool" => :build
 
   def install
+    args = []
+    args << "--build=aarch64-apple-darwin#{OS.kernel_version}" if Hardware::CPU.arm?
+
     system "autoreconf", "-fvi"
     system "./configure", "--disable-debug",
                           "--disable-dependency-tracking",
                           "--prefix=#{prefix}",
-                          "--disable-compat"
+                          "--disable-compat",
+                          *args
     # Use separate steps; there is a race in the Makefile.
     system "make"
     system "make", "install"
