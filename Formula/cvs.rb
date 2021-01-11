@@ -55,22 +55,26 @@ class Cvs < Formula
     # Work around configure issues with Xcode 12
     ENV.append "CFLAGS", "-Wno-implicit-function-declaration"
 
-    system "./configure", "--disable-debug",
-                          "--disable-dependency-tracking",
-                          "--prefix=#{prefix}",
-                          "--infodir=#{info}",
-                          "--mandir=#{man}",
-                          "--sysconfdir=#{etc}",
-                          "--with-gssapi",
-                          "--enable-pam",
-                          "--enable-encryption",
-                          "--with-external-zlib",
-                          "--enable-case-sensitivity",
-                          "--with-editor=vim",
-                          "ac_cv_func_working_mktime=no"
+    args = %W[
+      --disable-debug
+      --disable-dependency-tracking
+      --prefix=#{prefix}
+      --infodir=#{info}
+      --mandir=#{man}
+      --sysconfdir=#{etc}
+      --with-gssapi
+      --enable-pam
+      --enable-encryption
+      --with-external-zlib
+      --enable-case-sensitivity
+      --with-editor=vim
+      ac_cv_func_working_mktime=no
+    ]
+    args << "--build=aarch64-apple-darwin#{OS.kernel_version}" if Hardware::CPU.arm?
+
+    system "./configure", *args
     system "make"
-    ENV.deparallelize
-    system "make", "install"
+    ENV.deparallelize { system "make", "install" }
   end
 
   test do
