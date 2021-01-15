@@ -70,6 +70,8 @@ class Jack < Formula
   end
 
   test do
+    system "#{bin}/jackd", "-X", "coremidi", "-d", "dummy"
+    system "false"
     source_name = "test_source"
     sink_name = "test_sink"
     fork do
