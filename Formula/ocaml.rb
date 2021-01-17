@@ -38,6 +38,15 @@ class Ocaml < Formula
     satisfy { HOMEBREW_PREFIX.to_s == "/usr/local" }
   end
 
+  # Support for Apple Silicon
+  # https://github.com/ocaml/ocaml/pull/10026
+  if Hardware::CPU.arm?
+    patch do
+      url "https://github.com/ocaml/ocaml/commit/8d4eae5548.patch?full_index=1"
+      sha256 "10c899968ea0fa82f59ee99dff1931daf5de26dc1f97989d9b9259ccde55eaff"
+    end
+  end
+
   def install
     ENV.deparallelize # Builds are not parallel-safe, esp. with many cores
 
