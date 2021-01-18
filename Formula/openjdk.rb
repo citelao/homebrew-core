@@ -144,6 +144,11 @@ class Openjdk < Formula
     system "make", "images"
 
     jdk = Dir["build/*/images/jdk-bundle/*"].first
+
+    system "codesign", "-d", "-vvv", "#{jdk}/Contents/MacOS/libjli.dylib"
+    system "codesign", "-v", "-vvv", "#{jdk}/Contents/MacOS/libjli.dylib"
+    system "false"
+
     libexec.install jdk => "openjdk.jdk"
     bin.install_symlink Dir["#{libexec}/openjdk.jdk/Contents/Home/bin/*"]
     include.install_symlink Dir["#{libexec}/openjdk.jdk/Contents/Home/include/*.h"]
