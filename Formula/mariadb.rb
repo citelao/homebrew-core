@@ -35,8 +35,8 @@ class Mariadb < Formula
   # Upstream fix for Apple Silicon, remove in next version
   # https://github.com/MariaDB/server/pull/1743
   patch do
-    url "https://github.com/MariaDB/server/commit/b1241585.patch?full_index=1"
-    sha256 "f6900eac5c94bf3109a7c85820ce48ab89afecc9f0ce7718d209277bc69ebf44"
+    url "https://raw.githubusercontent.com/Homebrew/formula-patches/bc0c5033d15f4aa30ed6f4bf29e2ad61608f3299/mariadb/mariadb-10.5.8-apple-silicon.patch"
+    sha256 "30a3c608b25e25d2b98b4a3508f8c0be211f0e02ba919d2d2b50fa2d77744a52"
   end
 
   def install
@@ -71,6 +71,9 @@ class Mariadb < Formula
 
     # disable TokuDB, which is currently not supported on macOS
     args << "-DPLUGIN_TOKUDB=NO"
+
+    # Disable RocksDB on Apple Silicon (currently not supported)
+    args << "-DPLUGIN_ROCKSDB=NO" if Hardware::CPU.arm?
 
     system "cmake", ".", *std_cmake_args, *args
     system "make"
